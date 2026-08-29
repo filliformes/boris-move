@@ -22,7 +22,10 @@
             {"level": "Randomize", "label": "Randomize"},
             {"level": "Sync", "label": "Sync"},
             {"level": "Advanced", "label": "Advanced"}
-          ]
+          ,
+            { "key": "pitch", "short_name": "SHIFT" },
+            { "key": "pan_width", "short_name": "WIDTH" },
+            { "key": "mix", "short_name": "Mix" }]
         },
         "Granular": {
           "label": "Granular",
