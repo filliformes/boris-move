@@ -743,7 +743,7 @@ static int json_get_float(const char *json, const char *key, float *out) {
     const char *pos = strstr(json, search);
     if (!pos) return -1;
     pos += strlen(search);
-    while (*pos == ' ' || *pos == '\t') pos++;
+    while (*pos == ' ' || *pos == '\t' || *pos == '\r' || *pos == '\n') pos++;
     *out = (float)atof(pos);
     return 0;
 }
@@ -757,10 +757,17 @@ static int json_get_int(const char *json, const char *key, int *out) {
 
 static int json_get_string(const char *json, const char *key, char *out, int out_len) {
     char search[64];
-    snprintf(search, sizeof(search), "\"%s\":\"", key);
+    /* Match a fully-quoted key so "rhythm" never matches inside another key,
+     * then tolerate any whitespace/newlines the host inserts when it
+     * re-emits the state pretty-printed (`"key": "value"`). */
+    snprintf(search, sizeof(search), "\"%s\"", key);
     const char *pos = strstr(json, search);
     if (!pos) return -1;
     pos += strlen(search);
+    while (*pos == ':' || *pos == ' ' || *pos == '\t' ||
+           *pos == '\r' || *pos == '\n') pos++;
+    if (*pos != '"') return -1;
+    pos++;
     int i = 0;
     while (*pos && *pos != '"' && i < out_len - 1) {
         out[i++] = *pos++;
